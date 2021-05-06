@@ -1,0 +1,31 @@
+{
+    "name": "Jira integration installation",
+    "description": "Installation definition for Jira integration",
+    "connections" : [
+        {
+            "name" : "Jira cloud",
+            "connectionUrl" : "https://id.atlassian.com",
+            "authenticationScheme" : "PAT",
+            "connectionsecrets" : [
+                {
+                    "name" : "baseUrl",
+                    "secretName" : "JIRA_BASE_URL",
+                    "endpointUrl" : "{{connectionUrl}}api/projects/index",
+                    "valueSelector": "jsonpath:$[*].Url"
+                },
+                {
+                    "name" : "userEmail",
+                    "secretName" : "JIRA_USER_EMAIL",
+                    "endpointUrl" : "{{connectionUrl}}manage/identity",
+                    "valueSelector" :  "jsonpath:$[*].Email"
+                },
+                {
+                    "name" : "userAPIKey",
+                    "secretName" : "JIRA_API_TOKEN",
+                    "endpointUrl" : "{{connectionUrl}}manage/tokens",
+                    "valueSelector" :  "jsonpath:$[*].Value"
+                }
+            ]
+        }
+    ]
+}

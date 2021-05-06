@@ -1,0 +1,35 @@
+name: LinkCommitsToJira
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  linkIssues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login
+        uses: atlassian/gajira-login@v2.0.0
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      - name: Jira Find issue key
+        id: find
+        uses: atlassian/gajira-find-issue-key@v2.0.2
+      - name: add comment
+        uses: atlassian/gajira-comment@v2.0.2
+        with:
+          issue: ${{ steps.find.outputs.issue }}
+          comment: |
+            Commit made in GitHub for this issue
+            Author: ${{ github.event.commits[0].author.name }} 
+            repository: ${{ github.event.repository.full_name }}
+            commit: ${{ github.event.commits[0].id }} 
+            commiturl ${{ github.event.commits[0].url }}
+            commitmessage: ${{ github.event.commits[0].message }}
+      - name: Commit Comment
+        uses: peter-evans/commit-comment@v1.3.2
+        with:
+          sha: ${{ github.event.commits[0].id }}
+          body: |
+            Jira Cloud Issue linked with this commit
+            [1] : ${{ secrets.JIRA_BASE_URL }}/browse/${{ steps.find.outputs.issue }}
